@@ -34,8 +34,18 @@ All notable changes to this collection are documented here. The format is based 
   RedHat. The default of `axon_java_agent_version` changes from `"1.0.10"` to `""` (latest),
   which keeps the previous effective behaviour when `axon_agent_version` is not set (the default,
   and what the `kafka` role does) and avoids pinning a Cassandra 5.0 agent version onto other
-  Java agent packages. Playbooks that set `axon_agent_version` but relied on the implicit
-  `1.0.10` Java agent pin must now set `axon_java_agent_version: "1.0.10"` explicitly.
+  Java agent packages.
+
+  **Upgrade notes:**
+  - Playbooks that set `axon_agent_version` but relied on the implicit `1.0.10` Java agent pin
+    now get the latest Java agent; set `axon_java_agent_version: "1.0.10"` explicitly to keep it.
+  - A pin that used to be ignored is now enforced: `axon_java_agent_version` set without
+    `axon_agent_version` now installs that exact version. If a newer version is already
+    installed, the task fails on Debian/Ubuntu, since the `apt` module does not downgrade without
+    `allow_downgrade`. Remove the pin or align it with the installed version first.
+  - Offline installs (`axon_java_agent_force_offline_install: true`) need an explicit
+    `axon_java_agent_version`; the role asserts it with a clear message, as it already did for
+    `axon_agent_version`.
 
 - **`agent` role added the agent twice on method switch** (ASB-4712): the
   `Add AxonOps agent config to cassandra-env.sh` task appended `axon_agent_cassandra_config`
