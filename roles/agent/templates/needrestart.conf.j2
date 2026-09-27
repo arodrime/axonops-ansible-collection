@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Keep needrestart from restarting these services after a package upgrade
+# (e.g. the AxonOps Java agent jar, held open by the Cassandra/Kafka JVM).
+# They are still listed as needing a restart; restart them yourself, one node
+# at a time.
+{% for svc in axon_agent_needrestart_exclude %}
+$nrconf{override_rc}->{qr'^{{ svc | regex_escape }}(\.service)?$'} = 0;
+{% endfor %}

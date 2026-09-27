@@ -23,6 +23,17 @@ axon_agent_upper_lower_case_dse_template_var: DSE
 # Set this true to include the "dse" or "cassandra" section in axon-agent.yml. This is not normally required in recent versions.
 axon_agent_include_service_config: false
 
+# needrestart (Ubuntu, Debian) restarts services whose open files were replaced
+# by a package upgrade. Upgrading the Java agent package replaces the jar held
+# open by the Cassandra/Kafka JVM, so on Ubuntu (automatic restart mode) the
+# play would restart Cassandra on every node at once. List the systemd units
+# needrestart must not restart automatically, e.g. ["cassandra"] or ["kafka"].
+# Written to /etc/needrestart/conf.d/axonops.conf on Debian-family hosts; the
+# default (empty) writes nothing and removes that file if present. The cassandra
+# role of this collection already removes needrestart on Debian/Ubuntu, so this
+# matters mainly for agent-only setups and Kafka.
+axon_agent_needrestart_exclude: []
+
 axon_agent_install: true
 axon_agent_configure: true
 

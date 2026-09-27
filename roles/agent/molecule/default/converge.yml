@@ -35,6 +35,7 @@
         axon_java_agent_version: "1.0.10"
         axon_agent_cassandra_config_directory: /opt/cassandra/conf
         axon_agent_cassandra_config: '. /usr/share/axonops/axonops-jvm.options'
+        axon_agent_needrestart_exclude: ["cassandra", "cassandra@dc1"]
   post_tasks:
     - name: Read back cassandra-env.sh
       ansible.builtin.command: cat /opt/cassandra/conf/cassandra-env.sh
@@ -49,5 +50,36 @@
         fail_msg: >-
           Expected a single AxonOps line sourcing axonops-jvm.options; got:
           {{ _cass_env_out.stdout_lines | select('search', 'axonops') | list }}
+
+    - name: Stat the needrestart exclusion file
+      ansible.builtin.stat:
+        path: /etc/needrestart/conf.d/axonops.conf
+      register: _nr_conf
+
+    - name: Read the needrestart exclusion file
+      ansible.builtin.slurp:
+        src: /etc/needrestart/conf.d/axonops.conf
+      register: _nr_conf_content
+      when: _nr_conf.stat.exists
+
+    - name: Assert needrestart will not restart cassandra (Debian family)
+      ansible.builtin.assert:
+        that:
+          - _nr_conf.stat.exists
+          - _nr_conf.stat.mode == '0644'
+          - >-
+            "$nrconf{override_rc}->{qr'^cassandra(\\.service)?$'} = 0;"
+            in (_nr_conf_content.content | b64decode)
+          - >-
+            "$nrconf{override_rc}->{qr'^cassandra@dc1(\\.service)?$'} = 0;"
+            in (_nr_conf_content.content | b64decode)
+        fail_msg: "/etc/needrestart/conf.d/axonops.conf missing or without the cassandra overrides"
+      when: ansible_os_family == 'Debian'
+
+    - name: Assert no needrestart file outside the Debian family
+      ansible.builtin.assert:
+        that:
+          - not _nr_conf.stat.exists
+      when: ansible_os_family != 'Debian'
 
 # code: language=ansible
