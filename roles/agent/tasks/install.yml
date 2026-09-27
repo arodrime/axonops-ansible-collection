@@ -1,5 +1,34 @@
 ---
 
+# Before any apt run (repo prerequisites included): an upgrade of the Java
+# agent jar would otherwise let needrestart restart the JVM that loads it.
+- name: Configure needrestart exclusions
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Ensure needrestart conf.d directory exists
+      ansible.builtin.file:
+        path: /etc/needrestart/conf.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when: axon_agent_needrestart_exclude | length > 0
+
+    - name: Keep needrestart from restarting the monitored services
+      ansible.builtin.template:
+        src: needrestart.conf.j2
+        dest: /etc/needrestart/conf.d/axonops.conf
+        owner: root
+        group: root
+        mode: "0644"
+      when: axon_agent_needrestart_exclude | length > 0
+
+    - name: Remove needrestart exclusions when none are configured
+      ansible.builtin.file:
+        path: /etc/needrestart/conf.d/axonops.conf
+        state: absent
+      when: axon_agent_needrestart_exclude | length == 0
+
 - name: Include Debian repos
   ansible.builtin.import_tasks: repo/Debian.yml
   when: ansible_os_family == "Debian"
