@@ -57,6 +57,14 @@
 
 - name: Add AxonOps agent config to cassandra-env.sh
   when: axon_agent_cassandra_config_directory is defined and axon_agent_cassandra_config_directory != ""
+  vars:
+    # A live (unindented, not commented) AxonOps agent line: the old raw
+    # -javaagent line or the axonops-jvm.options include. Comments and indented
+    # lines never match, so a commented-out old line is never rewritten and
+    # the cassandra role's if/else block is never touched.
+    _axon_agent_toplevel_line_re: '^([^\s#].*)?(-javaagent:/usr/share/axonops/|\. /usr/share/axonops/axonops-jvm\.options)'
+    # Marker of the agent block rendered by this collection's cassandra role.
+    _axon_agent_cassandra_role_marker: 'if [ -f /usr/share/axonops/axonops-jvm.options ]'
   block:
     - name: Check the cassandra-env.sh can be found
       ansible.builtin.stat:
@@ -68,37 +76,46 @@
         msg: "{{ axon_agent_cassandra_config_directory }}/cassandra-env.sh not found"
       when: not _cass_env.stat.exists
 
-    # Older versions of this role appended the line without a regexp, so a
-    # changed axon_agent_cassandra_config left several top-level AxonOps lines
-    # (agent loaded twice). The replace below only rewrites the last match, so
-    # drop them all first when there is more than one; the next task re-adds a
-    # single line. Indented lines (e.g. the cassandra role's if/else block) are
-    # left alone.
     - name: Read cassandra-env.sh
       ansible.builtin.slurp:
         src: "{{ axon_agent_cassandra_config_directory }}/cassandra-env.sh"
       register: _cass_env_content
 
+    # The cassandra role already loads the agent (and re-renders the file on
+    # every run): adding a line here would load it twice.
+    - name: Skip cassandra-env.sh managed by the cassandra role
+      ansible.builtin.debug:
+        msg: >-
+          {{ axon_agent_cassandra_config_directory }}/cassandra-env.sh already loads the
+          AxonOps agent (rendered by the cassandra role); leaving it unchanged.
+          Unset axon_agent_cassandra_config_directory to silence this.
+      when: _axon_agent_cassandra_role_marker in (_cass_env_content.content | b64decode)
+
+    # Older versions of this role appended the line without a regexp, so a
+    # changed axon_agent_cassandra_config left several AxonOps lines (agent
+    # loaded twice). The replace below only rewrites the last match, so drop
+    # them all first when there is more than one; the next task re-adds one.
     - name: Remove duplicate AxonOps agent lines from cassandra-env.sh
       ansible.builtin.lineinfile:
         path: "{{ axon_agent_cassandra_config_directory }}/cassandra-env.sh"
         regexp: "{{ _axon_agent_toplevel_line_re }}"
         state: absent
-      when: >-
-        (_cass_env_content.content | b64decode).splitlines()
-        | select('search', _axon_agent_toplevel_line_re) | list | length > 1
-      vars:
-        _axon_agent_toplevel_line_re: '^([^\s#].*)?(-javaagent:/usr/share/axonops/|\. /usr/share/axonops/axonops-jvm\.options)'
+      when:
+        - _axon_agent_cassandra_role_marker not in (_cass_env_content.content | b64decode)
+        - >-
+          (_cass_env_content.content | b64decode).splitlines()
+          | select('search', _axon_agent_toplevel_line_re) | list | length > 1
 
     - name: Add AxonOps agent config to cassandra-env.sh
       ansible.builtin.lineinfile:
         path: "{{ axon_agent_cassandra_config_directory }}/cassandra-env.sh"
         line: "{{ axon_agent_cassandra_config }}"
-        # Match any existing AxonOps agent line (old raw -javaagent or new
-        # axonops-jvm.options) so switching methods replaces it rather than
-        # appending a second line and loading the agent twice.
-        regexp: '(-javaagent:/usr/share/axonops/|\. /usr/share/axonops/axonops-jvm\.options)'
+        # Replace any existing live AxonOps agent line (old raw -javaagent or
+        # new axonops-jvm.options) so switching methods does not append a
+        # second line and load the agent twice.
+        regexp: "{{ _axon_agent_toplevel_line_re }}"
         insertafter: EOF
+      when: _axon_agent_cassandra_role_marker not in (_cass_env_content.content | b64decode)
 
 - name: Add AxonOps agent config to kafka-server-start.sh
   when: axon_agent_kafka_config_directory is defined and axon_agent_kafka_config_directory != ""

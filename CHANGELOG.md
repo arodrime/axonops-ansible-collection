@@ -32,9 +32,16 @@ All notable changes to this collection are documented here. The format is based 
   with no `regexp`, so switching an existing install from the old raw `-javaagent` line to
   `. /usr/share/axonops/axonops-jvm.options` left both lines and loaded the agent twice. The
   task now matches any existing `axonops` agent line and replaces it in place.
-  Files already carrying several top-level AxonOps lines from older runs are cleaned up too:
-  `lineinfile` only rewrites the last match, so when more than one unindented AxonOps line is
-  present the role removes them all before writing the single configured line.
+  Follow-ups:
+  - Files already carrying several AxonOps lines from older runs are cleaned up: `lineinfile`
+    only rewrites the last match, so when more than one live AxonOps line is present the role
+    removes them all before writing the single configured line.
+  - The match is limited to live lines (unindented, not commented out). Before, a commented-out
+    AxonOps line after the live one was the last match: the comment was rewritten, the old live
+    line kept, and the agent loaded twice.
+  - A `cassandra-env.sh` rendered by the `cassandra` role (it contains the
+    `if [ -f /usr/share/axonops/axonops-jvm.options ]` agent block) is now left untouched with a
+    message, instead of having a line of that block rewritten or a second agent line appended.
 
 - **`examples/self-hosted-example/` was not runnable as documented**: the playbooks referenced
   inventory groups that were never defined, so the quick starts failed on an undefined variable,
