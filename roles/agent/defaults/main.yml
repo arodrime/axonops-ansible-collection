@@ -20,8 +20,9 @@ axon_agent_state: present
 # leading zero ("0640"): YAML reads an unquoted 640 as a decimal number, which
 # Ansible would apply as a wrong mode.
 # The Java agent loaded in the Cassandra/Kafka JVM reads this file, so when the
-# mode is not world-readable, those of the users below that exist on the host
-# are added to the axonops group (the documented AxonOps setup step).
+# mode is not world-readable, those of the users below that exist as local
+# accounts (/etc/passwd; directory users are skipped) are added to the axonops
+# group (the documented AxonOps setup step).
 axon_agent_config_mode: "0640"
 axon_agent_config_reader_users:
   - cassandra

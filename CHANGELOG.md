@@ -35,9 +35,11 @@ All notable changes to this collection are documented here. The format is based 
 
   **Upgrade note (possible breakage):** the Java agent loaded in the Cassandra/Kafka JVM reads
   this file. If the service user is not in the `axonops` group, the file becomes unreadable to
-  it, and at the **next Cassandra/Kafka restart** the Java agent cannot read its configuration.
+  it, and when the Java agent next reads its configuration (at the latest at the **next
+  Cassandra/Kafka restart**) it cannot.
   To prevent this, when the mode is not world-readable the role now adds the users listed in
-  `axon_agent_config_reader_users` that exist on the host to the `axonops` group (the documented
+  `axon_agent_config_reader_users` that exist as local accounts (`/etc/passwd`) to the `axonops`
+  group (the documented
   AxonOps step, already done by the `cassandra` and `kafka` roles). If your service runs under
   another user, add it to that list (or to the `axonops` group yourself) before restarting, or
   set `axon_agent_config_mode: "0644"` to keep the old behaviour.
