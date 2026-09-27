@@ -7,18 +7,14 @@
     repo_gpgcheck: false
     gpgcheck: false
 
-- name: Set package names (pinned version)
+# Each pin applies on its own: axon_agent_version pins axon-agent,
+# axon_java_agent_version pins the Java agent. Empty means latest.
+- name: Set package names
   ansible.builtin.set_fact:
-    axon_agent_pkg: "axon-agent-{{ axon_agent_version }}-1"
-    axon_java_agent_pkg: "{{ axon_java_agent }}-{{ axon_java_agent_version }}-1"
+    axon_agent_pkg: >-
+      axon-agent{{ ('-' ~ axon_agent_version ~ '-1') if (axon_agent_version | default('') | string | length > 0) else '' }}
+    axon_java_agent_pkg: >-
+      {{ axon_java_agent }}{{ ('-' ~ axon_java_agent_version ~ '-1') if (axon_java_agent_version | default('') | string | length > 0) else '' }}
     pkg_ext: "{{ ansible_architecture }}.rpm"
-  when: axon_agent_version | default('') != ""
-
-- name: Set package names (latest)
-  ansible.builtin.set_fact:
-    axon_agent_pkg: "axon-agent"
-    axon_java_agent_pkg: "{{ axon_java_agent }}"
-    pkg_ext: "{{ ansible_architecture }}.rpm"
-  when: axon_agent_version | default('') == ""
 
 # code: language=ansible

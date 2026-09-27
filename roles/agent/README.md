@@ -23,6 +23,14 @@ The AxonOps agent supports DSE and Apache Cassandra. Select your version below. 
 axon_java_agent: "axon-cassandra5.0-agent-jdk17"
 ```
 
+Package versions are pinned independently. Leave a version empty to install the latest one
+from the repository; pinning both is recommended in production.
+
+```yaml
+axon_agent_version: "2.0.21"       # pins the axon-agent package
+axon_java_agent_version: "1.0.10"  # pins the axon_java_agent package
+```
+
 If you enabled either TLS or mTLS you'll need to provide the SSL certs path. Please note this role does not copy or create the certs, you'll need to do it yourself.
 
 ```yaml

@@ -26,7 +26,7 @@
   when: has_internet_access and ansible_os_family == "RedHat"
   notify: Restart axon-agent
 
-- name: "Ensure AxonOps Java Agent is installed: {{ axon_agent_pkg }}"
+- name: "Ensure AxonOps Java Agent is installed: {{ axon_java_agent_pkg }}"
   ansible.builtin.package:
     name: "{{ axon_java_agent_pkg }}"
     state: "{{ axon_agent_state }}"

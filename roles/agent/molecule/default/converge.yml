@@ -31,7 +31,8 @@
     - role: agent
       vars:
         axon_java_agent: "axon-cassandra5.0-agent-jdk17"
-        axon_agent_version: "2.0.21"
+        # Only the Java agent is pinned: its pin must apply on its own, without
+        # axon_agent_version (axon-agent then installs the latest version).
         axon_java_agent_version: "1.0.10"
         axon_agent_cassandra_config_directory: /opt/cassandra/conf
         axon_agent_cassandra_config: '. /usr/share/axonops/axonops-jvm.options'
@@ -49,5 +50,17 @@
         fail_msg: >-
           Expected a single AxonOps line sourcing axonops-jvm.options; got:
           {{ _cass_env_out.stdout_lines | select('search', 'axonops') | list }}
+
+    - name: Gather installed packages
+      ansible.builtin.package_facts:
+
+    - name: Assert the Java agent pin applied without axon_agent_version
+      ansible.builtin.assert:
+        that:
+          - "'axon-agent' in ansible_facts.packages"
+          - ansible_facts.packages['axon-cassandra5.0-agent-jdk17'][0].version == '1.0.10'
+        fail_msg: >-
+          Expected axon-cassandra5.0-agent-jdk17 1.0.10; got
+          {{ ansible_facts.packages['axon-cassandra5.0-agent-jdk17'] | default('not installed') }}
 
 # code: language=ansible
