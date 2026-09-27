@@ -14,6 +14,19 @@ axon_java_agent_version: "1.0.10"
 #axon_agent_tls_mode: "disabled"
 
 axon_agent_state: present
+
+# Mode of /etc/axonops/axon-agent.yml (owner and group axonops). It contains the
+# agent key, so it is not world-readable. Keep it a quoted string with the
+# leading zero ("0640"): YAML reads an unquoted 640 as a decimal number, which
+# Ansible would apply as a wrong mode.
+# The Java agent loaded in the Cassandra/Kafka JVM reads this file, so when the
+# mode is not world-readable, those of the users below that exist as local
+# accounts (/etc/passwd; directory users are skipped) are added to the axonops
+# group (the documented AxonOps setup step).
+axon_agent_config_mode: "0640"
+axon_agent_config_reader_users:
+  - cassandra
+  - kafka
 #axon_agent_ntp_server: "{{ ntp_prefered_server | default('pool.ntp.org') }}"
 axon_java_agent_force_offline_install: false
 

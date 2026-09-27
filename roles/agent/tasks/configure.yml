@@ -1,5 +1,29 @@
 ---
 
+# The Java agent inside the Cassandra/Kafka JVM reads axon-agent.yml. When the
+# file is not world-readable, the service user needs the axonops group or the
+# JVM fails to load the agent at its next start.
+- name: Let the Cassandra/Kafka users read the agent config
+  # Octal mode (string, or integer from an unquoted 0640): check the "other"
+  # digit. Symbolic modes: always add the membership, it is harmless.
+  when: >-
+    (('%o' % axon_agent_config_mode) if axon_agent_config_mode is integer
+     else (axon_agent_config_mode | string))[-1] not in ['4', '5', '6', '7']
+  block:
+    # Local accounts only (/etc/passwd): usermod cannot change directory
+    # (LDAP/SSSD) users, whose group membership must be managed there.
+    - name: List local users
+      ansible.builtin.getent:
+        database: passwd
+        service: files
+
+    - name: Add existing Cassandra/Kafka users to the axonops group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: axonops
+        append: true
+      loop: "{{ axon_agent_config_reader_users | select('in', ansible_facts.getent_passwd) | list }}"
+
 - name: Copy AxonOps agent config file
   notify: Restart axon-agent
   ansible.builtin.template:
@@ -7,7 +31,9 @@
     dest: /etc/axonops/axon-agent.yml
     owner: axonops
     group: axonops
-    mode: "0644"
+    # Holds the agent key: not world-readable. The Java agent inside the
+    # Cassandra/Kafka JVM reads it too, via membership of the axonops group.
+    mode: "{{ axon_agent_config_mode }}"
 
 - name: Make sure axon-agent.service.d directory is present if needed
   ansible.builtin.file:
