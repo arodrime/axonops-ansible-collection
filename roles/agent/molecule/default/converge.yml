@@ -4,6 +4,11 @@
   vars:
     axon_agent_customer_name: molecule
   pre_tasks:
+    - name: Fake cassandra service user, not in the axonops group
+      ansible.builtin.user:
+        name: cassandra
+        system: true
+        create_home: false
     - name: Fake cassandra conf
       ansible.builtin.file:
         path: /opt/cassandra/conf
@@ -66,5 +71,16 @@
           Expected /etc/axonops/axon-agent.yml axonops:axonops 0640; got
           {{ _agent_cfg.stat.pw_name | default('?') }}:{{ _agent_cfg.stat.gr_name | default('?') }}
           {{ _agent_cfg.stat.mode | default('?') }}
+
+    - name: Read the axonops group
+      ansible.builtin.getent:
+        database: group
+        key: axonops
+
+    - name: Assert the cassandra user can read the agent config through the axonops group
+      ansible.builtin.assert:
+        that:
+          - "'cassandra' in ansible_facts.getent_group.axonops[2].split(',')"
+        fail_msg: "cassandra not in the axonops group: {{ ansible_facts.getent_group.axonops }}"
 
 # code: language=ansible

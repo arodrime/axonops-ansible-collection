@@ -28,12 +28,19 @@ All notable changes to this collection are documented here. The format is based 
 ### Fixed
 
 - **`agent` role wrote the agent key world-readable**: `/etc/axonops/axon-agent.yml`, which
-  holds `axon_agent_key`, was written with mode `0644`. It is now `0640` (owner and group
-  `axonops`), as the AxonOps agent setup documentation recommends. The Java agent reads the file
-  from inside the Cassandra/Kafka JVM, so the service user must be in the `axonops` group; the
-  `cassandra` and `kafka` roles already add it. New variable `axon_agent_config_mode` (default
-  `"0640"`) lets setups that manage Cassandra themselves restore `"0644"` until the group
-  membership is in place.
+  holds `axon_agent_key`, was written with mode `0644`. It is now `"0640"` (owner and group
+  `axonops`), as the AxonOps agent setup documentation recommends. New variables:
+  `axon_agent_config_mode` (default `"0640"`) and `axon_agent_config_reader_users` (default
+  `["cassandra", "kafka"]`).
+
+  **Upgrade note (possible breakage):** the Java agent loaded in the Cassandra/Kafka JVM reads
+  this file. If the service user is not in the `axonops` group, the file becomes unreadable to
+  it, and at the **next Cassandra/Kafka restart** the Java agent cannot read its configuration.
+  To prevent this, when the mode is not world-readable the role now adds the users listed in
+  `axon_agent_config_reader_users` that exist on the host to the `axonops` group (the documented
+  AxonOps step, already done by the `cassandra` and `kafka` roles). If your service runs under
+  another user, add it to that list (or to the `axonops` group yourself) before restarting, or
+  set `axon_agent_config_mode: "0644"` to keep the old behaviour.
 
 - **`agent` role added the agent twice on method switch** (ASB-4712): the
   `Add AxonOps agent config to cassandra-env.sh` task appended `axon_agent_cassandra_config`
