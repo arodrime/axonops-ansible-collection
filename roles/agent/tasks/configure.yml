@@ -7,7 +7,9 @@
     dest: /etc/axonops/axon-agent.yml
     owner: axonops
     group: axonops
-    mode: "0644"
+    # Holds the agent key: not world-readable. The Java agent inside the
+    # Cassandra/Kafka JVM reads it too, via membership of the axonops group.
+    mode: "{{ axon_agent_config_mode }}"
 
 - name: Make sure axon-agent.service.d directory is present if needed
   ansible.builtin.file:

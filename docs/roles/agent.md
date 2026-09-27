@@ -57,6 +57,7 @@ The `agent` role installs and configures the AxonOps Agent on Cassandra nodes. T
 |----------|---------|-------------|
 | `axon_agent_start_at_boot` | `true` | Enable the agent to start at boot |
 | `axon_agent_state` | `present` | State of the agent: `present` or `absent` |
+| `axon_agent_config_mode` | `0640` | Mode of `/etc/axonops/axon-agent.yml` (owner and group `axonops`). The file holds the agent key; the Cassandra/Kafka service user must be in the `axonops` group so the Java agent can read it |
 | `axon_agent_ntp_server` | `pool.ntp.org` | NTP server for time synchronization |
 
 ## Dependencies
@@ -167,6 +168,7 @@ None
 
 - **Sudoers Configuration**: The role automatically configures sudo permissions for the axonops user to manage the Cassandra service
 - **Automatic Cassandra Configuration**: You can optionally configure the role to automatically add the AxonOps agent configuration to Cassandra's `cassandra-env.sh` file by setting `axon_agent_cassandra_config_directory` and `axon_agent_cassandra_config`. Prefer sourcing the options file (`. /usr/share/axonops/axonops-jvm.options`), shipped by AxonOps Cassandra agents >= 1.1.0 for 3.11/4.0/4.1/5.0; older agents use the raw `-javaagent:` line. The role matches any existing AxonOps line and replaces it, so switching methods on an existing install does not add the agent twice. Check the [AxonOps documentation](https://axonops.com/docs/get_started/agent_setup/) for the correct configuration line for your Cassandra version
+- **Agent Config Permissions**: `/etc/axonops/axon-agent.yml` contains the agent key and is written `axonops:axonops` with mode `0640`, as the [AxonOps documentation](https://axonops.com/docs/get_started/agent_setup/) recommends. The Java agent loaded inside the Cassandra (or Kafka) JVM reads the same file, so the service user must be a member of the `axonops` group (`usermod -aG axonops cassandra`). The `cassandra` and `kafka` roles of this collection already do this; if you manage Cassandra or Kafka yourself, add the membership before restarting the service, or set `axon_agent_config_mode: "0644"` to keep the old behaviour
 - **Service Configuration**: By default, the role does not include the service-specific configuration in `axon-agent.yml` unless `axon_agent_include_service_config` is set to `true`
 - **Repository Management**: The role supports public, beta, and dev repositories. Use `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` to control which repositories are enabled
 - **Offline Installation**: For air-gapped environments, set `has_internet_access: false` and `axon_java_agent_force_offline_install: true`
