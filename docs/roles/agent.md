@@ -25,8 +25,8 @@ The `agent` role installs and configures the AxonOps Agent on Cassandra nodes. T
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `axon_java_agent` | `axon-cassandra5.0-agent-jdk17` | Java agent version to install. Options: `axon-cassandra3.11-agent`, `axon-cassandra4.1-agent`, `axon-cassandra5.0-agent-jdk17`, `axon-dse6.0-agent`, `axon-dse6.7-agent`, `axon-dse5.1-agent`, or empty string to skip |
-| `axon_agent_version` | `2.0.21` | Version of the AxonOps agent to install |
-| `axon_java_agent_version` | `1.0.10` | Version of the Java agent to install |
+| `axon_agent_version` | `""` (latest) | Version of the `axon-agent` package to install, e.g. `2.0.21`. Applies on its own, independently of `axon_java_agent_version` |
+| `axon_java_agent_version` | `""` (latest) | Version of the `axon_java_agent` package to install, e.g. `1.0.10`. Applies on its own, independently of `axon_agent_version` |
 
 ### Network Configuration
 
@@ -169,6 +169,7 @@ None
 - **Automatic Cassandra Configuration**: You can optionally configure the role to automatically add the AxonOps agent configuration to Cassandra's `cassandra-env.sh` file by setting `axon_agent_cassandra_config_directory` and `axon_agent_cassandra_config`. Prefer sourcing the options file (`. /usr/share/axonops/axonops-jvm.options`), shipped by AxonOps Cassandra agents >= 1.1.0 for 3.11/4.0/4.1/5.0; older agents use the raw `-javaagent:` line. The role matches any existing AxonOps line and replaces it, so switching methods on an existing install does not add the agent twice. Check the [AxonOps documentation](https://axonops.com/docs/get_started/agent_setup/) for the correct configuration line for your Cassandra version
 - **Service Configuration**: By default, the role does not include the service-specific configuration in `axon-agent.yml` unless `axon_agent_include_service_config` is set to `true`
 - **Repository Management**: The role supports public, beta, and dev repositories. Use `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` to control which repositories are enabled
+- **Version Pinning**: `axon_agent_version` and `axon_java_agent_version` each pin their own package; an empty value installs the latest version from the repository. Pin both in production so that re-running the play never upgrades an agent unexpectedly (upgrading the Java agent only takes effect after a Cassandra/Kafka restart)
 - **Offline Installation**: For air-gapped environments, set `has_internet_access: false` and `axon_java_agent_force_offline_install: true`
 
 ## Tags

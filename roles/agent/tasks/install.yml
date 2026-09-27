@@ -26,7 +26,7 @@
   when: has_internet_access and ansible_os_family == "RedHat"
   notify: Restart axon-agent
 
-- name: "Ensure AxonOps Java Agent is installed: {{ axon_agent_pkg }}"
+- name: "Ensure AxonOps Java Agent is installed: {{ axon_java_agent_pkg }}"
   ansible.builtin.package:
     name: "{{ axon_java_agent_pkg }}"
     state: "{{ axon_agent_state }}"
@@ -61,8 +61,11 @@
         that:
           - axon_agent_version is defined
           - axon_agent_version != ""
-          - axon_java_agent_version is defined
-          - axon_java_agent_version != ""
+          - axon_java_agent == '' or (axon_java_agent_version is defined and axon_java_agent_version != "")
+        fail_msg: >-
+          Offline install (axon_java_agent_force_offline_install) needs explicit package
+          versions: set axon_agent_version, and axon_java_agent_version unless
+          axon_java_agent is empty (the latter no longer defaults to 1.0.10).
 
     - name: Install AxonOps Agent offline (rpm)
       ansible.builtin.package:

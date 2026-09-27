@@ -52,18 +52,14 @@
   ansible.builtin.package:
     update_cache: true
 
+# Each pin applies on its own: axon_agent_version pins axon-agent,
+# axon_java_agent_version pins the Java agent. Empty means latest.
 - name: Set package names
   ansible.builtin.set_fact:
-    axon_agent_pkg: "axon-agent={{ axon_agent_version }}"
-    axon_java_agent_pkg: "{{ axon_java_agent }}={{ axon_java_agent_version }}"
+    axon_agent_pkg: >-
+      axon-agent{{ ('=' ~ axon_agent_version) if (axon_agent_version | default('') | string | length > 0) else '' }}
+    axon_java_agent_pkg: >-
+      {{ axon_java_agent }}{{ ('=' ~ axon_java_agent_version) if (axon_java_agent_version | default('') | string | length > 0) else '' }}
     pkg_ext: "deb"
-  when: axon_agent_version != ""
-
-- name: Set package names
-  ansible.builtin.set_fact:
-    axon_agent_pkg: "axon-agent"
-    axon_java_agent_pkg: "{{ axon_java_agent }}"
-    pkg_ext: "deb"
-  when: axon_agent_version == ""
 
 # code: language=ansible
