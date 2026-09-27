@@ -8,7 +8,7 @@
     - name: Check needrestart exclusions are plain systemd unit names
       ansible.builtin.assert:
         that:
-          - axon_agent_needrestart_exclude | reject('match', '^[A-Za-z0-9:_.@-]+$') | list | length == 0
+          - axon_agent_needrestart_exclude | reject('match', '^[A-Za-z0-9:_.@-]+\Z') | list | length == 0
         fail_msg: >-
           axon_agent_needrestart_exclude must list systemd unit names
           (letters, digits and : _ . - @ only); got {{ axon_agent_needrestart_exclude }}
