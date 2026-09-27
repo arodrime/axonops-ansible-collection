@@ -14,7 +14,10 @@ All notable changes to this collection are documented here. The format is based 
   Java agent package through the role could restart Cassandra on every node of the play at once
   (the AxonOps docs recommend removing `needrestart` for this reason). Listing units, e.g.
   `["cassandra"]`, writes `/etc/needrestart/conf.d/axonops.conf` with an `override_rc` entry so
-  `needrestart` only reports them. Debian family only; nothing is written by default.
+  `needrestart` only reports them. Unit names are validated (letters, digits, `: _ . - @`).
+  Debian family only; nothing is written by default. The `cassandra` role of this collection
+  already removes `needrestart` on Debian, so the option matters mainly for agent-only setups
+  (Cassandra installed by other means) and Kafka.
 
 - **CLI: `--cluster-type` flag**: `cli/axonopscli` accepted only Cassandra clusters. Every
   component built its API URL with a hardcoded `cassandra` segment, so the CLI could not target a

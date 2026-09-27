@@ -29,7 +29,9 @@ axon_agent_include_service_config: false
 # play would restart Cassandra on every node at once. List the systemd units
 # needrestart must not restart automatically, e.g. ["cassandra"] or ["kafka"].
 # Written to /etc/needrestart/conf.d/axonops.conf on Debian-family hosts; the
-# default (empty) writes nothing and removes that file if present.
+# default (empty) writes nothing and removes that file if present. The cassandra
+# role of this collection already removes needrestart on Debian/Ubuntu, so this
+# matters mainly for agent-only setups and Kafka.
 axon_agent_needrestart_exclude: []
 
 axon_agent_install: true
