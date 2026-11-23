@@ -28,7 +28,7 @@
 
 - name: Add version to the package name
   ansible.builtin.set_fact:
-    axon_dash_versioned_package: "axon-dash-{{ axon_dash_version }}"
+    axon_dash_versioned_package: "axon-dash{{ '=' if ansible_os_family == 'Debian' else '-' }}{{ axon_dash_version }}"
   when: axon_dash_version is defined and axon_dash_version != ''
 
 - name: Ensure Axon Dashboard is installed.
