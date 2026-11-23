@@ -26,11 +26,19 @@
             url: "{{ axonops_debian_repository_key_url }}"
             dest: /tmp/axonops-repo-signing-key.gpg
             mode: '0644'
+          register: _axonops_repo_key
 
+        - name: Check the AxonOps keyring
+          ansible.builtin.stat:
+            path: /usr/share/keyrings/axonops-archive-keyring.gpg
+          register: _axonops_keyring
+
+        # Rewritten when the downloaded key changes, so a new key URL takes effect.
         - name: Dearmor and save the AxonOps key
-          ansible.builtin.shell:
-            cmd: gpg --dearmor < /tmp/axonops-repo-signing-key.gpg > /usr/share/keyrings/axonops-archive-keyring.gpg
-            creates: /usr/share/keyrings/axonops-archive-keyring.gpg
+          ansible.builtin.command:
+            cmd: gpg --batch --yes --dearmor -o /usr/share/keyrings/axonops-archive-keyring.gpg /tmp/axonops-repo-signing-key.gpg
+          when: _axonops_repo_key is changed or not _axonops_keyring.stat.exists
+          changed_when: true
 
         - name: Set correct permissions on AxonOps keyring file
           ansible.builtin.file:
