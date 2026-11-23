@@ -35,7 +35,7 @@
 
 # Offline installation: copy the package from the control node and install it.
 - name: Offline installation of the AxonOps agent
-  when: not has_internet_access
+  when: not has_internet_access | bool
   block:
     - name: Check axon_agent_version is defined
       ansible.builtin.assert:
@@ -64,7 +64,7 @@
       when: ansible_os_family == "Debian"
 
 - name: Offline installation of the AxonOps Java agent
-  when: axon_java_agent != '' and (axon_java_agent_force_offline_install or not has_internet_access)
+  when: axon_java_agent != '' and (axon_java_agent_force_offline_install | bool or not has_internet_access | bool)
   block:
     - name: Check axon_java_agent_version is defined
       ansible.builtin.assert:

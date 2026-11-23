@@ -11,6 +11,8 @@ axon_dash_state: present
 axon_agent_public_repository: present
 axon_agent_beta_repository: absent
 
+# false: install from axon_dash_download_path / axon_reporting_download_path instead of
+# the repository. Hosts that install from an internal mirror keep it true.
 has_internet_access: true
 axon_dash_version: ""
 

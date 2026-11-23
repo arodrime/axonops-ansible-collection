@@ -20,6 +20,7 @@ axon_java_agent_force_offline_install: false
 # Offline installation (has_internet_access: false): the role copies the packages from
 # the control node and installs them; on Debian it does not set up the apt repository.
 # Requires pinned axon_agent_version and axon_java_agent_version.
+# Hosts that install from an internal mirror keep has_internet_access: true.
 has_internet_access: true
 # Paths on the control node to the .deb (Debian) or .rpm (RedHat) packages.
 #axon_agent_download_path: ""
