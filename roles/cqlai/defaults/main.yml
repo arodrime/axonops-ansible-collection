@@ -4,6 +4,18 @@ axon_agent_public_repository: present
 axon_agent_beta_repository: absent
 axon_agent_dev_repository: absent
 
+# Package repository. Set axonops_manage_repository to false when the host already
+# has the AxonOps package source configured (for example an internal mirror set up
+# outside this role): the role then neither adds the repository nor fetches its key.
+axonops_manage_repository: true
+# apt source line; point it to an internal mirror for air-gapped hosts.
+axonops_debian_repository: "deb https://packages.axonops.com/apt axonops-apt main"
+# URL of the key that signs the apt repository; the source line then gets a signed-by
+# option. Leave empty to use axonops_debian_repository exactly as written.
+axonops_debian_repository_key_url: "https://packages.axonops.com/apt/repo-signing-key.gpg"
+# yum baseurl (RedHat family).
+axonops_redhat_repository: "https://packages.axonops.com/yum"
+
 cqlai_version: latest
 #cqlai_package_url: "https://downloads.datastax.com/cqlai/{{ cqlai_version }}/cqlai-{{ cqlai_version }}-all.deb"
 

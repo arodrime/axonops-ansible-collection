@@ -3,9 +3,10 @@
   ansible.builtin.yum_repository:
     description: "AxonOps NoArch Repository"
     name: axonops-yum-noarch
-    baseurl: "{{ axon_agent_redhat_repository | default('https://packages.axonops.com/yum') }}"
+    baseurl: "{{ axon_agent_redhat_repository | default(axonops_redhat_repository) }}"
     repo_gpgcheck: false
     gpgcheck: false
+  when: axonops_manage_repository | bool
 
 - name: Set package names
   ansible.builtin.set_fact:

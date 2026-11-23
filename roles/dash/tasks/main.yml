@@ -2,6 +2,7 @@
 # Online installation
 - name: Import OS specific variables
   ansible.builtin.include_tasks: "repo/{{ ansible_os_family }}.yml"
+  when: axonops_manage_repository | bool
   tags:
     - axon_dash_repo
 

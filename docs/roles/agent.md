@@ -52,6 +52,19 @@ The `agent` role installs and configures the AxonOps Agent on Cassandra nodes. T
 | `axon_agent_cassandra_config_directory` | - | Path to Cassandra configuration directory (e.g., `/opt/cassandra/conf`) to enable automatic agent configuration in `cassandra-env.sh` |
 | `axon_agent_cassandra_config` | - | Configuration line to add to `cassandra-env.sh`. Preferred for agents >= 1.1.0 (Cassandra 3.11/4.0/4.1/5.0): `. /usr/share/axonops/axonops-jvm.options`. Older agents: `JVM_OPTS="$JVM_OPTS -javaagent:/usr/share/axonops/axon-cassandra4.0-agent.jar=/etc/axonops/axon-agent.yml"` |
 
+### Repository Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `axon_agent_public_repository` | `present` | State of the public apt repository line: `present` or `absent` |
+| `axon_agent_beta_repository` | `absent` | State of the beta apt repository line |
+| `axon_agent_dev_repository` | `absent` | State of the dev apt repository line |
+| `axonops_manage_repository` | `true` | Add the AxonOps package repository (and its signing key on Debian). Set to `false` when the host already has the source configured, for example an internal mirror managed outside this role |
+| `axonops_debian_repository` | `deb https://packages.axonops.com/apt axonops-apt main` | apt source line. Point it to an internal mirror for air-gapped hosts |
+| `axonops_debian_repository_key_url` | `https://packages.axonops.com/apt/repo-signing-key.gpg` | URL of the key that signs the apt repository; the source line then gets `signed-by`. Empty uses `axonops_debian_repository` exactly as written (for example with `[trusted=yes]` or your own `signed-by`) |
+| `axonops_redhat_repository` | `https://packages.axonops.com/yum` | yum `baseurl` |
+| `axon_agent_redhat_repository` | - | Legacy override of `axonops_redhat_repository`, still honoured when set |
+
 ### Other Variables
 
 | Variable | Default | Description |
@@ -178,7 +191,7 @@ None
 - **Sudoers Configuration**: The role automatically configures sudo permissions for the axonops user to manage the Cassandra service
 - **Automatic Cassandra Configuration**: You can optionally configure the role to automatically add the AxonOps agent configuration to Cassandra's `cassandra-env.sh` file by setting `axon_agent_cassandra_config_directory` and `axon_agent_cassandra_config`. Prefer sourcing the options file (`. /usr/share/axonops/axonops-jvm.options`), shipped by AxonOps Cassandra agents >= 1.1.0 for 3.11/4.0/4.1/5.0; older agents use the raw `-javaagent:` line. The role matches any existing AxonOps line and replaces it, so switching methods on an existing install does not add the agent twice. Check the [AxonOps documentation](https://axonops.com/docs/get_started/agent_setup/) for the correct configuration line for your Cassandra version
 - **Service Configuration**: By default, the role does not include the service-specific configuration in `axon-agent.yml` unless `axon_agent_include_service_config` is set to `true`
-- **Repository Management**: The role supports public, beta, and dev repositories. Use `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` to control which repositories are enabled
+- **Repository Management**: The role supports public, beta, and dev repositories. Use `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` to control which repositories are enabled. To install from an internal mirror, set `axonops_debian_repository` / `axonops_redhat_repository` (and `axonops_debian_repository_key_url` on Debian), or set `axonops_manage_repository: false` when the source is already configured on the host. On RedHat the install only enables repositories whose id starts with `axonops`, so a repository you configure yourself must use such an id
 - **Offline Installation**: For air-gapped environments, set `has_internet_access: false` and `axon_java_agent_force_offline_install: true`
 
 ## Tags

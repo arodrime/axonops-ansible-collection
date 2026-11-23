@@ -3,7 +3,7 @@
   ansible.builtin.yum_repository:
     name: axonops-yum
     description: "AxonOps Repository"
-    baseurl: "{{ axon_agent_redhat_repository | default('https://packages.axonops.com/yum') }}"
+    baseurl: "{{ axon_agent_redhat_repository | default(axonops_redhat_repository) }}"
     repo_gpgcheck: false
     gpgcheck: false
 

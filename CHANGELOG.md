@@ -8,6 +8,13 @@ All notable changes to this collection are documented here. The format is based 
 
 ### Added
 
+- **Configurable AxonOps package repository** (`agent`, `dash`, `server`, `cqlai`): the apt source
+  line and the signing key URL were hard-coded to `packages.axonops.com` in the `agent`, `dash` and
+  `cqlai` roles, so hosts using an internal mirror could not install. The four roles now share
+  `axonops_debian_repository`, `axonops_debian_repository_key_url` (empty uses the source line as
+  written) and `axonops_redhat_repository`, and `axonops_manage_repository: false` skips repository
+  management when the host already has the source configured. Defaults are unchanged.
+
 - **CLI: `--cluster-type` flag**: `cli/axonopscli` accepted only Cassandra clusters. Every
   component built its API URL with a hardcoded `cassandra` segment, so the CLI could not target a
   DSE or Kafka cluster no matter what was passed. Added a global `--cluster-type` flag (env var

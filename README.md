@@ -155,7 +155,10 @@ This playbook deploys the AxonOps Agent to Cassandra nodes. If you do not need t
 Apache Cassandra, set the switch `install_cassandra` to false.
 
 If you have a local mirror repositories of the AxonOps, Elastic and Cassandra packages adjust
-the `*_redhat_repository` URLs.
+the `*_redhat_repository` URLs. For the AxonOps packages, the `agent`, `dash`, `server` and `cqlai`
+roles share `axonops_debian_repository`, `axonops_debian_repository_key_url` and
+`axonops_redhat_repository`; set `axonops_manage_repository: false` to leave an already configured
+package source untouched.
 
 ```yaml
 - name: Deploy AxonOps Agent

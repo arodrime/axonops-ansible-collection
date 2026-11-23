@@ -145,7 +145,7 @@ For Cassandra clusters that do not use TLS:
 - **API key security**: `cqlai_ai_openai_api_key` MUST be provided via Ansible Vault or an equivalent secrets manager. Storing it in plaintext in a playbook or inventory file exposes it to anyone with repository access.
 - **Confirmation prompts**: `cqlai_require_confirmation` defaults to `true`. Disabling it allows destructive statements to execute without prompting — only do this in non-production environments where the risk is understood.
 - **Package version**: The default `cqlai_version: latest` installs the newest available package on each run. Pin to a specific version in production to ensure consistent behaviour across nodes and prevent unintended upgrades.
-- **Repository configuration**: The role uses the AxonOps package repository. The `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` variables control which repository is enabled, defaulting to the public release repository.
+- **Repository configuration**: The role uses the AxonOps package repository. The `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` variables control which repository is enabled, defaulting to the public release repository. `axonops_debian_repository`, `axonops_debian_repository_key_url` and `axonops_redhat_repository` point the role to an internal mirror, and `axonops_manage_repository: false` skips repository management when the source is already configured on the host (same variables as the `agent`, `dash` and `server` roles).
 
 ## License
 

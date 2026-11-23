@@ -132,8 +132,10 @@ where to reach the reporting service (`axon-reporting`, installed by the `dash` 
 |----------|---------|-------------|
 | `axon_server_public_repository` | `present` | Enable public repository |
 | `axon_server_beta_repository` | `absent` | Enable beta repository |
-| `axonops_debian_repository` | `deb https://packages.axonops.com/apt axonops-apt main` | Debian repository URL |
-| `axonops_redhat_repository` | `https://packages.axonops.com/yum` | RedHat repository URL |
+| `axonops_manage_repository` | `true` | Add the AxonOps package repository (and its signing key on Debian). Set to `false` when the host already has the source configured, for example an internal mirror managed outside this role |
+| `axonops_debian_repository` | `deb https://packages.axonops.com/apt axonops-apt main` | apt source line. Point it to an internal mirror for air-gapped hosts |
+| `axonops_debian_repository_key_url` | `https://packages.axonops.com/apt/repo-signing-key.gpg` | URL of the key that signs the apt repository; the source line then gets `signed-by`. Empty uses `axonops_debian_repository` exactly as written (for example with `[trusted=yes]` or your own `signed-by`) |
+| `axonops_redhat_repository` | `https://packages.axonops.com/yum` | yum `baseurl` |
 
 ## Dependencies
 
