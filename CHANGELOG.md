@@ -27,6 +27,14 @@ All notable changes to this collection are documented here. The format is based 
 
 ### Fixed
 
+- **Offline installation on Debian** (`agent`, `dash`, `server`): the offline paths
+  (`has_internet_access: false`) only handled `.rpm` files and the Debian apt repository tasks
+  still needed the internet, so air-gapped Debian hosts could not install. The roles now copy and
+  install the `.deb` with `apt` on Debian (`.rpm` unchanged on RedHat) and skip the apt repository
+  when offline. In the `agent` role, `has_internet_access: false` now installs both the agent and
+  the Java agent. The `server` role gains the same offline path (`axon_server_download_path`).
+  The `dash` role also pins `axon_dash_version` with `=` on Debian.
+
 - **`agent` role added the agent twice on method switch** (ASB-4712): the
   `Add AxonOps agent config to cassandra-env.sh` task appended `axon_agent_cassandra_config`
   with no `regexp`, so switching an existing install from the old raw `-javaagent` line to

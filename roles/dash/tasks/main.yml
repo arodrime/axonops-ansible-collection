@@ -2,6 +2,8 @@
 # Online installation
 - name: Import OS specific variables
   ansible.builtin.include_tasks: "repo/{{ ansible_os_family }}.yml"
+  # An offline Debian install copies the package and needs no repository.
+  when: has_internet_access | bool or ansible_os_family != 'Debian'
   tags:
     - axon_dash_repo
 
@@ -46,18 +48,32 @@
         pkg_arch: >-
           {% if ansible_architecture == 'aarch64' %}aarch64{% else %}x86_64{% endif %}
 
+    - name: Set the AxonOps Dashboard package file name
+      ansible.builtin.set_fact:
+        _axon_dash_pkg_file: >-
+          /tmp/axon-dash-{{ axon_dash_version }}.{{ 'deb' if ansible_os_family == 'Debian' else pkg_arch ~ '.rpm' }}
+
     - name: Copy AxonOps Dashboard package to target
       ansible.builtin.copy:
         src: "{{ axon_dash_download_path }}"
-        dest: "/tmp/axon-dash-{{ axon_dash_version }}.{{ pkg_arch }}.rpm"
+        dest: "{{ _axon_dash_pkg_file }}"
         mode: "0644"
         owner: "{{ ansible_user | default('root') }}"
         group: "{{ ansible_user | default('root') }}"
 
-    - name: Install AxonOps Dashboard offline
+    - name: Install AxonOps Dashboard offline (rpm)
       ansible.builtin.package:
-        name: "/tmp/axon-dash-{{ axon_dash_version }}.{{ pkg_arch }}.rpm"
+        name: "{{ _axon_dash_pkg_file }}"
         state: present
+      when: ansible_os_family != 'Debian'
+      notify:
+        - restart axon-dash
+
+    - name: Install AxonOps Dashboard offline (deb)
+      ansible.builtin.apt:
+        deb: "{{ _axon_dash_pkg_file }}"
+        state: present
+      when: ansible_os_family == 'Debian'
       notify:
         - restart axon-dash
 

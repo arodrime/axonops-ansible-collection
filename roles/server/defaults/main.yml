@@ -81,5 +81,12 @@ axon_server_cql_keyspace_replication: "{ 'class': 'NetworkTopologyStrategy', '{{
 axon_server_public_repository: present
 axon_server_beta_repository: absent
 
+# Offline installation (has_internet_access: false): the role copies the package
+# from the control node and installs it, without any repository. Requires a pinned
+# axon_server_version.
+has_internet_access: true
+# Path on the control node to the axon-server .deb (Debian) or .rpm (RedHat).
+#axon_server_download_path: ""
+
 axonops_debian_repository: "deb https://packages.axonops.com/apt axonops-apt main"
 axonops_redhat_repository: "https://packages.axonops.com/yum"

@@ -132,6 +132,8 @@ where to reach the reporting service (`axon-reporting`, installed by the `dash` 
 |----------|---------|-------------|
 | `axon_server_public_repository` | `present` | Enable public repository |
 | `axon_server_beta_repository` | `absent` | Enable beta repository |
+| `has_internet_access` | `true` | When `false`, install `axon-server` from `axon_server_download_path` instead of the repository (on Debian the apt repository is not set up) |
+| `axon_server_download_path` | - | Offline install: path on the control node to the `axon-server` `.deb` (Debian) or `.rpm` (RedHat). Requires a pinned `axon_server_version` |
 | `axonops_debian_repository` | `deb https://packages.axonops.com/apt axonops-apt main` | Debian repository URL |
 | `axonops_redhat_repository` | `https://packages.axonops.com/yum` | RedHat repository URL |
 

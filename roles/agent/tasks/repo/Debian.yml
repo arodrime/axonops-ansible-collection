@@ -1,56 +1,61 @@
 ---
-- name: Ensure pre-req gnupg is installed
-  ansible.builtin.apt:
-    name: ['gnupg', 'apt-transport-https', 'debian-archive-keyring']
-    state: present
-    update_cache: true
+# An offline install (has_internet_access: false) copies the packages, so it
+# needs no repository and must not run apt-get update against unreachable sources.
+- name: Set up the AxonOps apt repository
+  when: has_internet_access | bool
+  block:
+    - name: Ensure pre-req gnupg is installed
+      ansible.builtin.apt:
+        name: ['gnupg', 'apt-transport-https', 'debian-archive-keyring']
+        state: present
+        update_cache: true
 
-- name: Ensure keyrings directory exists
-  ansible.builtin.file:
-    path: /usr/share/keyrings
-    state: directory
-    mode: '0755'
+    - name: Ensure keyrings directory exists
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: '0755'
 
-- name: Download AxonOps apt repository key
-  ansible.builtin.get_url:
-    url: https://packages.axonops.com/apt/repo-signing-key.gpg
-    dest: /tmp/axonops-repo-signing-key.gpg
-    mode: '0644'
+    - name: Download AxonOps apt repository key
+      ansible.builtin.get_url:
+        url: https://packages.axonops.com/apt/repo-signing-key.gpg
+        dest: /tmp/axonops-repo-signing-key.gpg
+        mode: '0644'
 
-- name: Dearmor and save the AxonOps key
-  ansible.builtin.shell:
-    cmd: gpg --dearmor < /tmp/axonops-repo-signing-key.gpg > /usr/share/keyrings/axonops-archive-keyring.gpg
-    creates: /usr/share/keyrings/axonops-archive-keyring.gpg
+    - name: Dearmor and save the AxonOps key
+      ansible.builtin.shell:
+        cmd: gpg --dearmor < /tmp/axonops-repo-signing-key.gpg > /usr/share/keyrings/axonops-archive-keyring.gpg
+        creates: /usr/share/keyrings/axonops-archive-keyring.gpg
 
-- name: Set correct permissions on AxonOps keyring file
-  ansible.builtin.file:
-    path: /usr/share/keyrings/axonops-archive-keyring.gpg
-    mode: '0644'
-    owner: root
-    group: root
+    - name: Set correct permissions on AxonOps keyring file
+      ansible.builtin.file:
+        path: /usr/share/keyrings/axonops-archive-keyring.gpg
+        mode: '0644'
+        owner: root
+        group: root
 
-- name: Set AxonOps apt repository to {{ axon_agent_public_repository }}.
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt main"
-    state: "{{ axon_agent_public_repository }}"
-    update_cache: true
+    - name: Set AxonOps apt repository to {{ axon_agent_public_repository }}.
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt main"
+        state: "{{ axon_agent_public_repository }}"
+        update_cache: true
 
-- name: Set AxonOps beta apt repository to {{ axon_agent_beta_repository }}.
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt-beta main"
-    state: "{{ axon_agent_beta_repository }}"
-    update_cache: true
+    - name: Set AxonOps beta apt repository to {{ axon_agent_beta_repository }}.
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt-beta main"
+        state: "{{ axon_agent_beta_repository }}"
+        update_cache: true
 
-- name: Set AxonOps dev apt repository to {{ axon_agent_dev_repository }}.
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt-dev main"
-    state: "{{ axon_agent_dev_repository }}"
-    update_cache: true
+    - name: Set AxonOps dev apt repository to {{ axon_agent_dev_repository }}.
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/axonops-archive-keyring.gpg] https://packages.axonops.com/apt axonops-apt-dev main"
+        state: "{{ axon_agent_dev_repository }}"
+        update_cache: true
 
-# It is required for when you're updating versions
-- name: Run the equivalent of "apt-get update" as a separate step
-  ansible.builtin.package:
-    update_cache: true
+    # It is required for when you're updating versions
+    - name: Run the equivalent of "apt-get update" as a separate step
+      ansible.builtin.package:
+        update_cache: true
 
 - name: Set package names
   ansible.builtin.set_fact:

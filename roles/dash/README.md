@@ -41,7 +41,7 @@ axon_dash_reporting_url: "http://127.0.0.1:8081"  # AXON_REPORTING_URL; required
 axon_reporting_state: present
 axon_reporting_version: ""                         # pin a version, e.g. "1.2.3"; empty = latest
 axon_reporting_start_at_boot: true
-# axon_reporting_download_path: ""                 # offline install: path to the .rpm on the control node
+# axon_reporting_download_path: ""                 # offline install: path to the .deb/.rpm on the control node
 ```
 
 Set `axon_dash_reporting_enabled: false` to skip installing the reporting service (for example
