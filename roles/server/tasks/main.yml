@@ -13,7 +13,10 @@
 
 - name: Include OS speficig config
   ansible.builtin.include_tasks: "repo/{{ ansible_os_family }}.yml"
-  when: axonops_manage_repository | bool
+  # An offline Debian install copies the package and needs no repository.
+  when:
+    - axonops_manage_repository | bool
+    - has_internet_access | bool or ansible_os_family != 'Debian'
   tags:
     - axon_server_repo
 

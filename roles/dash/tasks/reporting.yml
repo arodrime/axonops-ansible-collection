@@ -26,18 +26,32 @@
         pkg_arch: >-
           {% if ansible_architecture == 'aarch64' %}aarch64{% else %}x86_64{% endif %}
 
+    - name: Set the AxonOps reporting package file name
+      ansible.builtin.set_fact:
+        _axon_reporting_pkg_file: >-
+          /tmp/axon-reporting-{{ axon_reporting_version }}.{{ 'deb' if ansible_os_family == 'Debian' else pkg_arch ~ '.rpm' }}
+
     - name: Copy AxonOps reporting package to target
       ansible.builtin.copy:
         src: "{{ axon_reporting_download_path }}"
-        dest: "/tmp/axon-reporting-{{ axon_reporting_version }}.{{ pkg_arch }}.rpm"
+        dest: "{{ _axon_reporting_pkg_file }}"
         mode: "0644"
         owner: "{{ ansible_user | default('root') }}"
         group: "{{ ansible_user | default('root') }}"
 
-    - name: Install AxonOps reporting offline
+    - name: Install AxonOps reporting offline (rpm)
       ansible.builtin.package:
-        name: "/tmp/axon-reporting-{{ axon_reporting_version }}.{{ pkg_arch }}.rpm"
+        name: "{{ _axon_reporting_pkg_file }}"
         state: present
+      when: ansible_os_family != 'Debian'
+      notify:
+        - Restart axon-reporting
+
+    - name: Install AxonOps reporting offline (deb)
+      ansible.builtin.apt:
+        deb: "{{ _axon_reporting_pkg_file }}"
+        state: present
+      when: ansible_os_family == 'Debian'
       notify:
         - Restart axon-reporting
 

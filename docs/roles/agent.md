@@ -27,6 +27,10 @@ The `agent` role installs and configures the AxonOps Agent on Cassandra nodes. T
 | `axon_java_agent` | `axon-cassandra5.0-agent-jdk17` | Java agent version to install. Options: `axon-cassandra3.11-agent`, `axon-cassandra4.1-agent`, `axon-cassandra5.0-agent-jdk17`, `axon-dse6.0-agent`, `axon-dse6.7-agent`, `axon-dse5.1-agent`, or empty string to skip |
 | `axon_agent_version` | `""` (latest) | Version of the AxonOps agent to install. Required for offline installation |
 | `axon_java_agent_version` | `1.0.10` | Version of the Java agent to install |
+| `has_internet_access` | `true` | When `false`, install the agent and the Java agent from `axon_agent_download_path` and `axon_java_agent_download_path` instead of the repository |
+| `axon_agent_download_path` | - | Offline install: path on the control node to the `axon-agent` `.deb` (Debian) or `.rpm` (RedHat) |
+| `axon_java_agent_download_path` | - | Offline install: path on the control node to the Java agent `.deb` or `.rpm` |
+| `axon_java_agent_force_offline_install` | `false` | Install the Java agent from `axon_java_agent_download_path` even when `has_internet_access` is `true` |
 
 ### Network Configuration
 
@@ -192,7 +196,7 @@ None
 - **Automatic Cassandra Configuration**: You can optionally configure the role to automatically add the AxonOps agent configuration to Cassandra's `cassandra-env.sh` file by setting `axon_agent_cassandra_config_directory` and `axon_agent_cassandra_config`. Prefer sourcing the options file (`. /usr/share/axonops/axonops-jvm.options`), shipped by AxonOps Cassandra agents >= 1.1.0 for 3.11/4.0/4.1/5.0; older agents use the raw `-javaagent:` line. The role matches any existing AxonOps line and replaces it, so switching methods on an existing install does not add the agent twice. Check the [AxonOps documentation](https://axonops.com/docs/get_started/agent_setup/) for the correct configuration line for your Cassandra version
 - **Service Configuration**: By default, the role does not include the service-specific configuration in `axon-agent.yml` unless `axon_agent_include_service_config` is set to `true`
 - **Repository Management**: The role supports public, beta, and dev repositories. Use `axon_agent_public_repository`, `axon_agent_beta_repository`, and `axon_agent_dev_repository` to control which repositories are enabled. To install from an internal mirror, set `axonops_debian_repository` / `axonops_redhat_repository` (and `axonops_debian_repository_key_url` on Debian), or set `axonops_manage_repository: false` when the source is already configured on the host. On RedHat the install only enables repositories whose id starts with `axonops`, so a repository you configure yourself must use such an id
-- **Offline Installation**: For air-gapped environments, set `has_internet_access: false` and `axon_java_agent_force_offline_install: true`
+- **Offline Installation**: For air-gapped environments, set `has_internet_access: false` with pinned `axon_agent_version` and `axon_java_agent_version`, and `axon_agent_download_path` / `axon_java_agent_download_path` pointing to the `.deb` (Debian) or `.rpm` (RedHat) files on the control node. The role copies and installs them and, on Debian, does not set up the apt repository. `axon_java_agent_force_offline_install: true` installs only the Java agent from `axon_java_agent_download_path` while the agent itself comes from the repository
 
 ## Tags
 

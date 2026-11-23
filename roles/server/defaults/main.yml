@@ -81,6 +81,13 @@ axon_server_cql_keyspace_replication: "{ 'class': 'NetworkTopologyStrategy', '{{
 axon_server_public_repository: present
 axon_server_beta_repository: absent
 
+# Offline installation (has_internet_access: false): the role copies the package
+# from the control node and installs it, without any repository. Requires a pinned
+# axon_server_version.
+has_internet_access: true
+# Path on the control node to the axon-server .deb (Debian) or .rpm (RedHat).
+#axon_server_download_path: ""
+
 # Package repository. Set axonops_manage_repository to false when the host already
 # has the AxonOps package source configured (for example an internal mirror set up
 # outside this role): the role then neither adds the repository nor fetches its key.

@@ -20,7 +20,7 @@ The `dash` role installs and configures the AxonOps Dashboard (axon-dash), which
 | `axon_dash_state` | `present` | State of the dashboard: `present` or `absent` |
 | `axon_dash_start_at_boot` | `true` | Enable the dashboard to start at boot |
 | `axon_dash_version` | `""` (latest) | Specific version to install, or empty for latest |
-| `axon_dash_download_path` | _unset_ | Offline install (`has_internet_access: false`): path on the control node to the `axon-dash` `.rpm`. Requires `axon_dash_version` |
+| `axon_dash_download_path` | _unset_ | Offline install (`has_internet_access: false`): path on the control node to the `axon-dash` `.deb` (Debian) or `.rpm` (RedHat). Requires `axon_dash_version` |
 
 ### Network Configuration
 
@@ -49,7 +49,7 @@ packages manually once Reports v2 is confirmed working.
 | `axon_reporting_state` | `present` | State of the reporting package: `present` or `absent` |
 | `axon_reporting_version` | `""` (latest) | Specific `axon-reporting` version to install, or empty for latest |
 | `axon_reporting_start_at_boot` | `true` | Enable the reporting service to start at boot |
-| `axon_reporting_download_path` | _unset_ | Offline install: path on the control node to the `axon-reporting` `.rpm` |
+| `axon_reporting_download_path` | _unset_ | Offline install: path on the control node to the `axon-reporting` `.deb` (Debian) or `.rpm` (RedHat). Requires `axon_reporting_version` |
 
 ### Nginx Reverse Proxy Configuration
 
@@ -77,7 +77,7 @@ packages manually once Reports v2 is confirmed working.
 | `axonops_debian_repository_key_url` | `https://packages.axonops.com/apt/repo-signing-key.gpg` | URL of the key that signs the apt repository; the source line then gets `signed-by`. Empty uses `axonops_debian_repository` exactly as written (for example with `[trusted=yes]` or your own `signed-by`) |
 | `axonops_redhat_repository` | `https://packages.axonops.com/yum` | yum `baseurl` |
 | `axon_agent_redhat_repository` | - | Legacy override of `axonops_redhat_repository`, still honoured when set |
-| `has_internet_access` | `true` | Whether the system has internet access |
+| `has_internet_access` | `true` | Whether the system has internet access. When `false`, the role installs the packages from `axon_dash_download_path` / `axon_reporting_download_path` and, on Debian, does not set up the apt repository |
 
 ## Dependencies
 

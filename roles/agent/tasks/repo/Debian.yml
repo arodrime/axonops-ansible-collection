@@ -1,6 +1,10 @@
 ---
+# An offline install (has_internet_access: false) copies the packages, so it
+# needs no repository and must not run apt-get update against unreachable sources.
 - name: Manage the AxonOps apt repository
-  when: axonops_manage_repository | bool
+  when:
+    - axonops_manage_repository | bool
+    - has_internet_access | bool
   block:
     - name: Ensure pre-req gnupg is installed
       ansible.builtin.apt:
@@ -60,6 +64,7 @@
 - name: Run the equivalent of "apt-get update" as a separate step
   ansible.builtin.package:
     update_cache: true
+  when: has_internet_access | bool
 
 - name: Set package names
   ansible.builtin.set_fact:

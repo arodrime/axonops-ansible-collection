@@ -22,7 +22,7 @@
     - axon_server_version is not defined or axon_server_version == 'latest'
 
 - name: Ensure Axon server is installed.
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "Debian" and (has_internet_access or axon_server_state == "absent")
   ansible.builtin.apt:
     name: "{{ axon_server_versioned_package }}"
     state: "{{ axon_server_state }}"
@@ -30,7 +30,7 @@
     - restart axon-server
 
 - name: Ensure Axon server is installed.
-  when: ansible_os_family == "RedHat"
+  when: ansible_os_family == "RedHat" and (has_internet_access or axon_server_state == "absent")
   ansible.builtin.package:
     name: "{{ axon_server_versioned_package }}"
     state: "{{ axon_server_state }}"
@@ -38,6 +38,46 @@
     disablerepo: "*"
   notify:
     - restart axon-server
+
+# Offline installation: copy the package from the control node and install it.
+- name: Offline installation of the AxonOps server
+  when: not has_internet_access and axon_server_state == "present"
+  block:
+    - name: Check the offline installation settings
+      ansible.builtin.assert:
+        that:
+          - axon_server_download_path is defined
+          - axon_server_version is defined
+          - axon_server_version not in ['', 'latest']
+        fail_msg: "An offline installation needs axon_server_download_path and a pinned axon_server_version."
+
+    - name: Set the AxonOps server package file name
+      ansible.builtin.set_fact:
+        _axon_server_pkg_file: "/tmp/axon-server-{{ axon_server_version }}.{{ 'deb' if ansible_os_family == 'Debian' else 'rpm' }}"
+
+    - name: Copy AxonOps server package to target
+      ansible.builtin.copy:
+        src: "{{ axon_server_download_path }}"
+        dest: "{{ _axon_server_pkg_file }}"
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Install AxonOps server offline (rpm)
+      ansible.builtin.package:
+        name: "{{ _axon_server_pkg_file }}"
+        state: present
+      when: ansible_os_family != "Debian"
+      notify:
+        - restart axon-server
+
+    - name: Install AxonOps server offline (deb)
+      ansible.builtin.apt:
+        deb: "{{ _axon_server_pkg_file }}"
+        state: present
+      when: ansible_os_family == "Debian"
+      notify:
+        - restart axon-server
 
 - name: Add systemd service override for axon-server when opensearch and cassandra are running on localhost
   when:

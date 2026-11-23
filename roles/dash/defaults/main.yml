@@ -37,7 +37,8 @@ axon_reporting_state: present
 # Pin a specific axon-reporting package version, e.g. "1.2.3". Empty installs latest.
 axon_reporting_version: ""
 axon_reporting_start_at_boot: true
-# Offline install: path on the control node to the axon-reporting .rpm to copy and install.
+# Offline install: path on the control node to the axon-reporting .deb (Debian) or .rpm
+# (RedHat) to copy and install.
 #axon_reporting_download_path: ""
 
 axon_dash_nginx:

@@ -17,7 +17,13 @@ axon_agent_state: present
 #axon_agent_ntp_server: "{{ ntp_prefered_server | default('pool.ntp.org') }}"
 axon_java_agent_force_offline_install: false
 
+# Offline installation (has_internet_access: false): the role copies the packages from
+# the control node and installs them; on Debian it does not set up the apt repository.
+# Requires pinned axon_agent_version and axon_java_agent_version.
 has_internet_access: true
+# Paths on the control node to the .deb (Debian) or .rpm (RedHat) packages.
+#axon_agent_download_path: ""
+#axon_java_agent_download_path: ""
 axon_agent_upper_lower_case_dse_template_var: DSE
 
 # Set this true to include the "dse" or "cassandra" section in axon-agent.yml. This is not normally required in recent versions.
