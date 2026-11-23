@@ -39,7 +39,12 @@ All notable changes to this collection are documented here. The format is based 
   still needed the internet, so air-gapped Debian hosts could not install. The roles now copy and
   install the `.deb` with `apt` on Debian (`.rpm` unchanged on RedHat) and skip the apt repository
   when offline. In the `agent` role, `has_internet_access: false` now installs both the agent and
-  the Java agent. The `server` role gains the same offline path (`axon_server_download_path`).
+  the Java agent (before, the agent package was only copied), and
+  `axon_java_agent_force_offline_install: true` with internet access now installs the agent from the
+  repository and only the Java agent from its file (before, it failed on a missing agent file).
+  The `server` role now honours `has_internet_access` too, with the same offline path
+  (`axon_server_download_path`); an inventory that sets it to `false` for every host must give
+  the server package path as well.
   The `dash` role also pins `axon_dash_version` with `=` on Debian.
 
 - **`agent` role added the agent twice on method switch** (ASB-4712): the

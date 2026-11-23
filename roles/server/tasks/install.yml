@@ -22,7 +22,7 @@
     - axon_server_version is not defined or axon_server_version == 'latest'
 
 - name: Ensure Axon server is installed.
-  when: ansible_os_family == "Debian" and (has_internet_access or axon_server_state == "absent")
+  when: ansible_os_family == "Debian" and (has_internet_access | bool or axon_server_state == "absent")
   ansible.builtin.apt:
     name: "{{ axon_server_versioned_package }}"
     state: "{{ axon_server_state }}"
@@ -30,7 +30,7 @@
     - restart axon-server
 
 - name: Ensure Axon server is installed.
-  when: ansible_os_family == "RedHat" and (has_internet_access or axon_server_state == "absent")
+  when: ansible_os_family == "RedHat" and (has_internet_access | bool or axon_server_state == "absent")
   ansible.builtin.package:
     name: "{{ axon_server_versioned_package }}"
     state: "{{ axon_server_state }}"
@@ -41,7 +41,7 @@
 
 # Offline installation: copy the package from the control node and install it.
 - name: Offline installation of the AxonOps server
-  when: not has_internet_access and axon_server_state == "present"
+  when: not has_internet_access | bool and axon_server_state == "present"
   block:
     - name: Check the offline installation settings
       ansible.builtin.assert:

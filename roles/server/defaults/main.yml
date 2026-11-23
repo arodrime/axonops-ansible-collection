@@ -84,6 +84,7 @@ axon_server_beta_repository: absent
 # Offline installation (has_internet_access: false): the role copies the package
 # from the control node and installs it, without any repository. Requires a pinned
 # axon_server_version.
+# Hosts that install from an internal mirror keep has_internet_access: true.
 has_internet_access: true
 # Path on the control node to the axon-server .deb (Debian) or .rpm (RedHat).
 #axon_server_download_path: ""

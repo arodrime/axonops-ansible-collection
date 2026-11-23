@@ -24,6 +24,8 @@ axonops_debian_repository_key_url: "https://packages.axonops.com/apt/repo-signin
 # yum baseurl (RedHat family).
 axonops_redhat_repository: "https://packages.axonops.com/yum"
 
+# false: install from axon_dash_download_path / axon_reporting_download_path instead of
+# the repository. Hosts that install from an internal mirror keep it true.
 has_internet_access: true
 axon_dash_version: ""
 
